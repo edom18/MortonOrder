@@ -9,6 +9,10 @@ using UnityEngine;
 public class Cell<T>
 {
     private TreeData<T> _latestData;
+    public TreeData<T> FirstData
+    {
+        get { return _latestData; }
+    }
 
     /// <summary>
     /// TreeDataが抜ける際に通知を送ってもらう
