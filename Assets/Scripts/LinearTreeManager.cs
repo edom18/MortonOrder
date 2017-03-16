@@ -196,6 +196,99 @@ public class LinearTreeManager<T>
     }
 
     /// <summary>
+    /// 登録されているオブジェクトの衝突リストを取得する
+    /// </summary>
+    /// <param name="collisionList">衝突リスト（結果が保持される）</param>
+    /// <returns>衝突リストのサイズ</returns>
+    public int GetAllCollisionList(List<T> collisionList)
+    {
+        // 結果リストをクリア
+        collisionList.Clear();
+
+        // ルート空間の存在をチェック
+        if (_cellList[0] == null)
+        {
+            return 0;
+        }
+
+        // ルート空間から衝突チェック開始
+        // TODO: あとで整理
+        List<T> colStac = new List<T>();
+        GetCollisionList(0, collisionList, colStac);
+
+        return collisionList.Count;
+    }
+
+    bool GetCollisionList(int elem, List<T> collisionList, List<T> colStac)
+    {
+        // 空間内のオブジェクト同士の衝突リスト作成
+        TreeData<T> data = _cellList[elem].FirstData;
+
+        while (data != null)
+        {
+            // 衝突リスト作成
+            TreeData<T> next = data.Next;
+            while (next != null)
+            {
+                // 衝突リスト作成
+                collisionList.Add(data.Object);
+                collisionList.Add(next.Object);
+                next = next.Next;
+            }
+
+            // 衝突スタックと衝突リスト作成
+            foreach (var obj in colStac)
+            {
+                collisionList.Add(data.Object);
+                collisionList.Add(obj);
+            }
+
+            data = data.Next;
+        }
+
+        bool child = false;
+
+        // 子空間に移動
+        int objNum = 0;
+        int nextElem;
+        for (int i = 0; i < 4; i++)
+        {
+            nextElem = elem * 4 + 1 + i;
+            if (nextElem < _cellNum && _cellList[nextElem] != null)
+            {
+                if (!child)
+                {
+                    // 登録オブジェクトをスタックに追加
+                    data = _cellList[elem].FirstData;
+                    while (data != null)
+                    {
+                        colStac.Add(data.Object);
+                        objNum++;
+                        data = data.Next;
+                    }
+                }
+
+                child = true;
+
+                // 子空間を検索
+                GetCollisionList(nextElem, collisionList, colStac);
+            }
+        }
+
+        // スタックからオブジェクトを外す
+        if (child)
+        {
+            for (int i = 0; i < objNum; i++)
+            {
+                //colStac.pop
+            }
+        }
+
+        return true;
+    }
+
+    #region Static Methods
+    /// <summary>
     /// 渡された引数をbitで飛び飛びのものに変換する
     /// </summary>
     /// <param name="n">変換したい値</param>
@@ -207,4 +300,5 @@ public class LinearTreeManager<T>
         n = (n | (n << 2)) & 0x33333333;
         return (n | (n << 1)) & 0x55555555;
     }
+    #endregion Static Methods
 }
