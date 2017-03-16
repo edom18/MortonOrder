@@ -17,7 +17,13 @@ public class Cell<T>
     /// <returns>処理に成功したらtrue</returns>
     public bool OnRemove(TreeData<T> data)
     {
-        // TODO: あとでやる
+        if (_latestData != data)
+        {
+            return false;
+        }
+
+        _latestData = data.Next;
+
         return true;
     }
 
