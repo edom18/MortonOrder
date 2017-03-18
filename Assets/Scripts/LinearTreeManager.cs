@@ -219,14 +219,29 @@ public class LinearTreeManager<T>
         return collisionList.Count;
     }
 
+    /// <summary>
+    /// 各セルから全衝突可能リストを作成する
+    /// </summary>
+    /// <param name="elem">検索を開始する要素のindex</param>
+    /// <param name="collisionList">衝突可能性のあるリストを格納する</param>
+    /// <param name="colStac">衝突検知用のスタック</param>
+    /// <returns><c>true</c>, if collision list was gotten, <c>false</c> otherwise.</returns>
     bool GetCollisionList(int elem, List<T> collisionList, List<T> colStac)
     {
         // 空間内のオブジェクト同士の衝突リスト作成
+        // ルート空間からはじめ、その子空間へと移動しながら、「衝突可能性のある」オブジェクト同士の
+        // ペアとなるリストを作成する
+        // 結果は「collisionList」に格納される。
+        // なお、リストは「ペア」構造となっていて、
+        // 完成したリストからはふたつずつ取り出して衝突の詳細判定を行う想定。
+
+        // ルート空間に登録されているリンクリストの最初の要素を取り出す
         TreeData<T> data = _cellList[elem].FirstData;
 
+        // データがなくなるまで繰り返す
         while (data != null)
         {
-            // 衝突リスト作成
+            // まず、リンクリストの次を取り出す
             TreeData<T> next = data.Next;
             while (next != null)
             {
