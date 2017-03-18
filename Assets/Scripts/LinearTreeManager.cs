@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class LinearTreeManager<T>
 {
+    // 分割最大数
     private readonly int _MaxLevel = 4;
 
     private int[] _pow;
@@ -64,7 +65,7 @@ public class LinearTreeManager<T>
 
         // 有効領域を登録
         // 左上の座標と幅、高さを保持
-        _left = level;
+        _left = left;
         _top = top;
         _width = right - left;
         _height = bottom - top;
@@ -212,8 +213,7 @@ public class LinearTreeManager<T>
         }
 
         // ルート空間から衝突チェック開始
-        // TODO: あとで整理
-        List<T> colStac = new List<T>();
+        LinkedList<T> colStac = new LinkedList<T>();
         GetCollisionList(0, collisionList, colStac);
 
         return collisionList.Count;
@@ -226,7 +226,7 @@ public class LinearTreeManager<T>
     /// <param name="collisionList">衝突可能性のあるリストを格納する</param>
     /// <param name="colStac">衝突検知用のスタック</param>
     /// <returns><c>true</c>, if collision list was gotten, <c>false</c> otherwise.</returns>
-    bool GetCollisionList(int elem, List<T> collisionList, List<T> colStac)
+    bool GetCollisionList(int elem, List<T> collisionList, LinkedList<T> colStac)
     {
         // 空間内のオブジェクト同士の衝突リスト作成
         // ルート空間からはじめ、その子空間へと移動しながら、「衝突可能性のある」オブジェクト同士の
@@ -266,36 +266,51 @@ public class LinearTreeManager<T>
         // 子空間に移動
         int objNum = 0;
         int nextElem;
+
+        // 小空間を巡る
+        // 今回は4分木なので子空間は4分割される
+        // つまり、4回ループすることで小空間を網羅する
         for (int i = 0; i < 4; i++)
         {
             nextElem = elem * 4 + 1 + i;
-            if (nextElem < _cellNum && _cellList[nextElem] != null)
+
+            // 空間分割数以上 or 対象空間がない場合はスキップ
+            bool needsSkip = (nextElem >= _cellNum ||
+                             _cellList[nextElem] == null);
+            if (needsSkip)
             {
-                if (!child)
-                {
-                    // 登録オブジェクトをスタックに追加
-                    data = _cellList[elem].FirstData;
-                    while (data != null)
-                    {
-                        colStac.Add(data.Object);
-                        objNum++;
-                        data = data.Next;
-                    }
-                }
-
-                child = true;
-
-                // 子空間を検索
-                GetCollisionList(nextElem, collisionList, colStac);
+                continue;
             }
+
+            // 子空間への処理がまだ済んでいない場合は処理を行う
+            // 同空間内のオブジェクトをスタックに追加した上で小空間の衝突リストを作成する
+            // ただし、一度セットアップが済んでいる場合は本処理をスキップし、小空間の検索のみを実行する
+            // （同空間のオブジェクト追加は一度のみ行う必要があるため）
+            if (!child)
+            {
+                // 同空間のオブジェクトをスタックに積む
+                data = _cellList[elem].FirstData;
+                while (data != null)
+                {
+                    colStac.AddLast(data.Object);
+                    objNum++;
+                    data = data.Next;
+                }
+            }
+
+            child = true;
+
+            // 子空間を検索
+            GetCollisionList(nextElem, collisionList, colStac);
         }
 
         // スタックからオブジェクトを外す
+        // 計測したobjNum個数分、スタックから取り除く（＝子空間検索用に追加した分）
         if (child)
         {
             for (int i = 0; i < objNum; i++)
             {
-                //colStac.pop
+                colStac.RemoveLast();
             }
         }
 
