@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class LinearTreeManager<T>
 {
+    #region Variables
     // 分割最大数
     private readonly int _MaxLevel = 4;
 
@@ -25,6 +26,15 @@ public class LinearTreeManager<T>
     private float _height;
     private float _unitWidth;
     private float _unitHeight;
+    #endregion Variables
+
+    // コンストラクタ
+    public LinearTreeManager(int level, float left, float top, float right, float bottom)
+    {
+        // 初期化
+        Initialize(level, left, top, right, bottom);
+    }
+
 
     /// <summary>
     /// 初期化
@@ -37,6 +47,8 @@ public class LinearTreeManager<T>
     /// <returns>初期化できたらtrue</returns>
     bool Initialize(int level, float left, float top, float right, float bottom)
     {
+        // TODO: このあたりの配列数確保は要確認
+
         // MaxLevelを超えて初期化しようとした場合はエラー
         if (level > _MaxLevel + 1)
         {
@@ -45,7 +57,7 @@ public class LinearTreeManager<T>
         }
 
         // MaxLevelに応じた配列を作成
-        _pow = new int[_MaxLevel];
+        _pow = new int[_MaxLevel + 1];
 
         // 各レベルでの空間数を算出
         // ルートは1、その子は4、さらにその子（孫）は16、と4^nで増えていく
@@ -60,7 +72,7 @@ public class LinearTreeManager<T>
         // 0レベル（ルート）ならセル数は1
         // 1レベルならセル数は5（(16 - 1) / 3）
         // 2レベルならセル数は21（(64 - 1) / 3）
-        _cellNum = (_pow[level + 1] - 1) / 3;
+        _cellNum = (_pow[level] - 1) / 3;
         _cellList = new Cell<T>[_cellNum];
 
         // 有効領域を登録
