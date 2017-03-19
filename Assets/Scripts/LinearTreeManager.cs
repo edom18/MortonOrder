@@ -57,22 +57,22 @@ public class LinearTreeManager<T>
         }
 
         // MaxLevelに応じた配列を作成
-        _pow = new int[_MaxLevel + 1];
+        _pow = new int[_MaxLevel + 2];
 
         // 各レベルでの空間数を算出
         // ルートは1、その子は4、さらにその子（孫）は16、と4^nで増えていく
         _pow[0] = 1;
-        for (int i = 1; i < _MaxLevel + 1; i++)
+        for (int i = 1; i <= _MaxLevel + 1; i++)
         {
             _pow[i] = _pow[i - 1] * 4;
         }
 
-        // level（0基点）の配列作成
+        // level（0基点）の線形配列作成
         // e.g.)
         // 0レベル（ルート）ならセル数は1
         // 1レベルならセル数は5（(16 - 1) / 3）
         // 2レベルならセル数は21（(64 - 1) / 3）
-        _cellNum = (_pow[level] - 1) / 3;
+        _cellNum = (_pow[level + 1] - 1) / 3;
         _cellList = new Cell<T>[_cellNum];
 
         // 有効領域を登録
