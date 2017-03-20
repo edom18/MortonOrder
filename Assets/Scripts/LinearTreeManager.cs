@@ -111,7 +111,7 @@ public class LinearTreeManager<T>
         int elem = GetMortonNumber(left, top, right, bottom, out belongLevel);
 
         // 算出されたモートン番号が、生成した空間分割数より大きい場合はエラー
-        if (elem < _cellNum)
+        if (elem >= _cellNum)
         {
             Debug.LogErrorFormat("Calcurated moton number is over the splited number. [MotonNumber: {0}]", elem);
 
