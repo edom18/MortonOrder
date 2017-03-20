@@ -170,13 +170,13 @@ public class LinearTreeManager<T>
     int GetMortonNumber(float left, float top, float right, float bottom, out int belongLevel)
     {
         // 左上のモートン番号を算出（lt）
-        int lt_x = (int)left;
-        int lt_y = (int)top;
+        int lt_x = (int)(left / _unitWidth);
+        int lt_y = (int)(top / _unitHeight);
         int lt = BitSeparate(lt_x) | (BitSeparate(lt_y) << 1);
 
         // 右下のモートン番号を算出（rb）
-        int rb_x = (int)right;
-        int rb_y = (int)bottom;
+        int rb_x = (int)(right / _unitWidth);
+        int rb_y = (int)(bottom / _unitHeight);
         int rb = BitSeparate(rb_x) | (BitSeparate(rb_y) << 1);
 
         // 左上と右下のモートン番号のXORを取る
