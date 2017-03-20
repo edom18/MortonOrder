@@ -110,6 +110,9 @@ public class LinearTreeManager<T>
         int belongLevel;
         int elem = GetMortonNumber(left, top, right, bottom, out belongLevel);
 
+        // TODO: ここで、線形配列空間にindexを変形する必要がある。
+        // elem = Translate(elem); // 的な
+
         // 算出されたモートン番号が、生成した空間分割数より大きい場合はエラー
         if (elem >= _cellNum)
         {
@@ -149,8 +152,13 @@ public class LinearTreeManager<T>
             // 計算では高速化のためビットシフトで計算する
             elem = (elem - 1) >> 2;
 
+            // ルート空間の場合は-1になるためそこで終了
+            if (elem == -1)
+            {
+                break;
+            }
             // 空間分割数以上になったら終了
-            if (elem >= _cellNum)
+            else if (elem >= _cellNum)
             {
                 break;
             }
