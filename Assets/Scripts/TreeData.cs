@@ -13,9 +13,15 @@ using UnityEngine;
 public class TreeData<T>
 {
     public Cell<T> Cell { get; set; }
-    public T Object { get; set; }
+    public T Object { get; private set; }
     public TreeData<T> Previous { get; set; }
     public TreeData<T> Next { get; set; }
+
+    // コンストラクタ
+    public TreeData(T target)
+    {
+        Object = target;
+    }
 
     /// <summary>
     /// 空間から逸脱する
