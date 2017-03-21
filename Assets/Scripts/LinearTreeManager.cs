@@ -96,6 +96,19 @@ public class LinearTreeManager<T>
     }
 
     /// <summary>
+    /// Will convert a morton number to the linear array space number.
+    /// </summary>
+    /// <param name="mortonNumber"></param>
+    /// <returns></returns>
+    int ToLinearSpace(int mortonNumber, int level)
+    {
+        const int treeBase = 4;
+        const int denom = treeBase - 1;
+        int additveNum = (int)((Mathf.Pow(treeBase, level) - 1) / denom);
+        return mortonNumber + additveNum;
+    }
+
+    /// <summary>
     /// 指定範囲にオブジェクトを登録
     /// </summary>
     /// <param name="left">オブジェクトの左の点</param>
@@ -109,9 +122,7 @@ public class LinearTreeManager<T>
         // オブジェクトの境界範囲からモートン番号を算出
         int belongLevel;
         int elem = GetMortonNumber(left, top, right, bottom, out belongLevel);
-
-        // TODO: ここで、線形配列空間にindexを変形する必要がある。
-        // elem = Translate(elem); // 的な
+        elem = ToLinearSpace(elem, belongLevel);
 
         // 算出されたモートン番号が、生成した空間分割数より大きい場合はエラー
         if (elem >= _cellNum)
