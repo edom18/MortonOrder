@@ -21,7 +21,7 @@ public class LinearTreeBehaviour : MonoBehaviour
 	void Start()
     {
         // Max Level
-        int level = 4;
+        int level = 3;
 
         float left = 0f;
         float top = 0f;
