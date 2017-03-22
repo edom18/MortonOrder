@@ -18,23 +18,26 @@ public class LinearTreeManager<T>
     // 分割されたセル数の最大値
     private int _cellNum = 0;
 
-    private int _divisionNumber = 4;
+    private int _divisionNumber = 8;
 
     private int _level;
 
     private float _left;
     private float _top;
+    private float _front;
     private float _width;
     private float _height;
+    private float _depth;
     private float _unitWidth;
     private float _unitHeight;
+    private float _unitDepth;
     #endregion Variables
 
     // コンストラクタ
-    public LinearTreeManager(int level, float left, float top, float right, float bottom)
+    public LinearTreeManager(int level, float left, float top, float right, float bottom, float front, float back)
     {
         // 初期化
-        Initialize(level, left, top, right, bottom);
+        Initialize(level, left, top, right, bottom, front, back);
     }
 
 
@@ -46,8 +49,10 @@ public class LinearTreeManager<T>
     /// <param name="top">上の座標</param>
     /// <param name="right">右の座標</param>
     /// <param name="bottom">下の座標</param>
+    /// <param name="front">手前の座標</param>
+    /// <param name="back">奥の座標</param>
     /// <returns>初期化できたらtrue</returns>
-    bool Initialize(int level, float left, float top, float right, float bottom)
+    bool Initialize(int level, float left, float top, float right, float bottom, float front, float back)
     {
         // MaxLevelを超えて初期化しようとした場合はエラー
         if (level > _MaxLevel + 1)
@@ -79,11 +84,13 @@ public class LinearTreeManager<T>
         _cellList = new Cell<T>[_cellNum];
 
         // 有効領域を登録
-        // 左上の座標と幅、高さを保持
+        // 左上手前の座標と幅、高さ、深度を保持
         _left = left;
         _top = top;
+        _front = front;
         _width = right - left;
         _height = bottom - top;
+        _depth = back - front;
 
         // 分割数に応じた単位幅と単位高を求める
         // 分割数はlevelを指数とした2の累乗分増えてくため、
@@ -93,6 +100,7 @@ public class LinearTreeManager<T>
         int unit = 1 << level;
         _unitWidth = _width / unit;
         _unitHeight = _height / unit;
+        _unitDepth = _depth / unit;
 
         _level = level;
 
@@ -119,13 +127,15 @@ public class LinearTreeManager<T>
     /// <param name="top">オブジェクトの上の点</param>
     /// <param name="right">オブジェクトの右の点</param>
     /// <param name="bottom">オブジェクトの下の点</param>
+    /// <param name="front">オブジェクトの手前の点</param>
+    /// <param name="back">オブジェクトの奥の点</param>
     /// <param name="data">登録データオブジェクト</param>
     /// <returns>登録に成功したらtrue</returns>
-    public bool Register(float left, float top, float right, float bottom, TreeData<T> data)
+    public bool Register(float left, float top, float right, float bottom, float front, float back, TreeData<T> data)
     {
         // オブジェクトの境界範囲からモートン番号を算出
         int belongLevel;
-        int elem = GetMortonNumber(left, top, right, bottom, out belongLevel);
+        int elem = GetMortonNumber(left, top, right, bottom, front, back, out belongLevel);
         elem = ToLinearSpace(elem, belongLevel);
 
         // 算出されたモートン番号が、生成した空間分割数より大きい場合はエラー
@@ -189,43 +199,43 @@ public class LinearTreeManager<T>
     /// <param name="right">算出対象オブジェクトの右の点</param>
     /// <param name="bottom">算出対象オブジェクトの下の点</param>
     /// <returns>算出されたモートン番号</returns>
-    int GetMortonNumber(float left, float top, float right, float bottom, out int belongLevel)
+    int GetMortonNumber(float left, float top, float right, float bottom, float front, float back, out int belongLevel)
     {
-        // 左上のモートン番号を算出（lt）
-        int lt_x = (int)(left / _unitWidth);
-        int lt_y = (int)(top / _unitHeight);
-        int lt = BitSeparate2D(lt_x) | (BitSeparate2D(lt_y) << 1);
-        // 3D版
-        // int ltb = BitSeparate3D(lt_x) | (BitSeparate3D(lt_y) << 1) | (BitSeparate3D(lt_z) << 2);
+        // 左上手前のモートン番号を算出
+        int ltd_x = (int)(left / _unitWidth);
+        int ltd_y = (int)(top / _unitHeight);
+        int ltd_z = (int)(front / _unitDepth);
+        int ltd = BitSeparate3D(ltd_x) | (BitSeparate3D(ltd_y) << 1) | (BitSeparate3D(ltd_z) << 2);
 
-        // 右下のモートン番号を算出（rb）
-        int rb_x = (int)(right / _unitWidth);
-        int rb_y = (int)(bottom / _unitHeight);
-        int rb = BitSeparate2D(rb_x) | (BitSeparate2D(rb_y) << 1);
+        // 右下奥のモートン番号を算出
+        int rbd_x = (int)(right / _unitWidth);
+        int rbd_y = (int)(bottom / _unitHeight);
+        int rbd_z = (int)(back / _unitDepth);
+        int rbd = BitSeparate3D(rbd_x) | (BitSeparate3D(rbd_y) << 1) | BitSeparate3D(rbd_z) << 2;
 
-        // TODO: あとで3D版に変更する
         // 左上と右下のモートン番号のXORを取る
-        int xor = lt ^ rb;
+        int xor = ltd ^ rbd;
         int i = 0;
         int shift = 0;
         int spaceIndex = 0;
 
+        // TODO: ここだけ_divisionNumberに応じて変化しないため、あとで最適化する
         while (xor != 0)
         {
-            if ((xor & 0x3) != 0)
+            if ((xor & 0x7) != 0)
             {
                 // 空間シフト数を採用
                 spaceIndex = (i + 1);
-                shift = spaceIndex * 2;
+                shift = spaceIndex * 3;
             }
 
-            // 2bitシフトさせて再チェック
-            xor >>= 2;
+            // 3bitシフトさせて再チェック
+            xor >>= 3;
             i++;
         }
 
         // モートン番号
-        int morton = rb >> shift;
+        int morton = rbd >> shift;
 
         // 所属する空間のレベル
         belongLevel = _level - spaceIndex;
