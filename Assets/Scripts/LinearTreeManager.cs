@@ -18,6 +18,8 @@ public class LinearTreeManager<T>
     // 分割されたセル数の最大値
     private int _cellNum = 0;
 
+    private int _divisionNumber = 4;
+
     private int _level;
 
     private float _left;
@@ -59,18 +61,21 @@ public class LinearTreeManager<T>
 
         // 各レベルでの空間数を算出
         // ルートは1、その子は4、さらにその子（孫）は16、と4^nで増えていく
+        // ※ Octreeの場合は底が8となり、1, 8, 64, 512・・となる。
         _pow[0] = 1;
         for (int i = 1; i <= _MaxLevel + 1; i++)
         {
-            _pow[i] = _pow[i - 1] * 4;
+            _pow[i] = _pow[i - 1] * _divisionNumber;
         }
 
         // level（0基点）の線形配列作成
         // e.g.)
         // 0レベル（ルート）ならセル数は1
-        // 1レベルならセル数は5（(16 - 1) / 3）
-        // 2レベルならセル数は21（(64 - 1) / 3）
-        _cellNum = (_pow[level + 1] - 1) / 3;
+        // 1レベルならセル数は9（(64 - 1) / 7）
+        // 2レベルならセル数は73（(512 - 1) / 7）
+        // 割る数は分割数から1を引いた値。等比数列を利用して求める。
+        int denom = _divisionNumber - 1;
+        _cellNum = (_pow[level + 1] - 1) / denom;
         _cellList = new Cell<T>[_cellNum];
 
         // 有効領域を登録
@@ -85,8 +90,9 @@ public class LinearTreeManager<T>
         // シフトで求めた数で割ることで単位を求める
         // e.g.)
         // 0レベルなら分割は1、1レベルなら分割は2（2^1）、2レベルなら4（2^2）
-        _unitWidth = _width / (1 << level);
-        _unitHeight = _height / (1 << level);
+        int unit = 1 << level;
+        _unitWidth = _width / unit;
+        _unitHeight = _height / unit;
 
         _level = level;
 
@@ -97,12 +103,12 @@ public class LinearTreeManager<T>
     /// Will convert a morton number to the linear array space number.
     /// </summary>
     /// <param name="mortonNumber"></param>
+    /// <param name="level"></param>
     /// <returns></returns>
     int ToLinearSpace(int mortonNumber, int level)
     {
-        const int treeBase = 4;
-        const int denom = treeBase - 1;
-        int additveNum = (int)((Mathf.Pow(treeBase, level) - 1) / denom);
+        int denom = _divisionNumber - 1;
+        int additveNum = (int)((Mathf.Pow(_divisionNumber, level) - 1) / denom);
         return mortonNumber + additveNum;
     }
 
@@ -152,14 +158,13 @@ public class LinearTreeManager<T>
 
             // 親空間を作成する（存在していなければ）
             //
-            // 親空間の算出は「親番号 = (int)((子番号 - 1) / 4)」で算出できる。
-            // e.g.)
-            // 5番の親番号の子空間は21 - 24を持つ。
-            // 仮に22から計算すると、(22 - 1) / 4 = 5（intにキャスト）
+            // 親空間の算出は「親番号 = (int)((子番号 - 1) / 8)」で算出できる。
+            // ※ 2Dの場合は「4」で割る。空間分割数から。
             //
-            // 結果として、4で割るということは、2bitシフトしていることに等しいため、（4が1（単位）になる計算）
+            // 結果として、8（4）で割るということは、4bit（2bit）シフトしていることに等しいため、（8（4）が1（単位）になる計算）
             // 計算では高速化のためビットシフトで計算する
-            elem = (elem - 1) >> 2;
+            int shift = _divisionNumber / 2;
+            elem = (elem - 1) >> shift;
 
             // ルート空間の場合は-1になるためそこで終了
             if (elem == -1)
@@ -189,13 +194,16 @@ public class LinearTreeManager<T>
         // 左上のモートン番号を算出（lt）
         int lt_x = (int)(left / _unitWidth);
         int lt_y = (int)(top / _unitHeight);
-        int lt = BitSeparate(lt_x) | (BitSeparate(lt_y) << 1);
+        int lt = BitSeparate2D(lt_x) | (BitSeparate2D(lt_y) << 1);
+        // 3D版
+        // int ltb = BitSeparate3D(lt_x) | (BitSeparate3D(lt_y) << 1) | (BitSeparate3D(lt_z) << 2);
 
         // 右下のモートン番号を算出（rb）
         int rb_x = (int)(right / _unitWidth);
         int rb_y = (int)(bottom / _unitHeight);
-        int rb = BitSeparate(rb_x) | (BitSeparate(rb_y) << 1);
+        int rb = BitSeparate2D(rb_x) | (BitSeparate2D(rb_y) << 1);
 
+        // TODO: あとで3D版に変更する
         // 左上と右下のモートン番号のXORを取る
         int xor = lt ^ rb;
         int i = 0;
@@ -297,11 +305,11 @@ public class LinearTreeManager<T>
         int nextElem;
 
         // 小空間を巡る
-        // 今回は4分木なので子空間は4分割される
-        // つまり、4回ループすることで小空間を網羅する
-        for (int i = 0; i < 4; i++)
+        // 例えば、8分木の場合は子空間は8分割される
+        // つまり、8回ループすることで小空間を網羅する
+        for (int i = 0; i < _divisionNumber; i++)
         {
-            nextElem = elem * 4 + 1 + i;
+            nextElem = elem * _divisionNumber + 1 + i;
 
             // 空間分割数以上 or 対象空間がない場合はスキップ
             bool needsSkip = (nextElem >= _cellNum ||
@@ -348,16 +356,28 @@ public class LinearTreeManager<T>
 
     #region Static Methods
     /// <summary>
-    /// 渡された引数をbitで飛び飛びのものに変換する
+    /// 渡された引数をbitで飛び飛びのものに変換する（2D版）
     /// </summary>
     /// <param name="n">変換したい値</param>
     /// <returns>変換後の値</returns>
-    static int BitSeparate(int n)
+    static int BitSeparate2D(int n)
     {
         n = (n | (n << 8)) & 0x00ff00ff;
         n = (n | (n << 4)) & 0x0f0f0f0f;
         n = (n | (n << 2)) & 0x33333333;
         return (n | (n << 1)) & 0x55555555;
+    }
+
+    /// <summary>
+    /// 渡された引数をbitで飛び飛びにしたものに変換する（3D版）
+    /// </summary>
+    /// <param name="n">変換したい値</param>
+    /// <returns>変換後の値</returns>
+    static int BitSeparate3D(int n)
+    {
+        n = (n | (n << 8)) & 0x0000f00f;
+        n = (n | (n << 4)) & 0x000c30c3;
+        return (n | (n << 2)) & 0x00249249;
     }
     #endregion Static Methods
 }
