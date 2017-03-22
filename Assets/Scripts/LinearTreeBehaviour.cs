@@ -31,6 +31,10 @@ public class LinearTreeBehaviour : MonoBehaviour
 
         // オブジェクトを仮登録してみる
         RegisterObjects();
+
+        // Check collisions
+        List<GameObject> collisionList = new List<GameObject>();
+       _manager.GetAllCollisionList(collisionList);
 	}
 
     /// <summary>
