@@ -19,6 +19,7 @@ public class LinearTreeManager<T>
     private int _cellNum = 0;
 
     private int _divisionNumber = 8;
+    private int _parentShift;
 
     private int _level;
 
@@ -104,6 +105,8 @@ public class LinearTreeManager<T>
 
         _level = level;
 
+        _parentShift = (int)Mathf.Log(_divisionNumber, 2f);
+
         return true;
     }
 
@@ -171,10 +174,9 @@ public class LinearTreeManager<T>
             // 親空間の算出は「親番号 = (int)((子番号 - 1) / 8)」で算出できる。
             // ※ 2Dの場合は「4」で割る。空間分割数から。
             //
-            // 結果として、8（4）で割るということは、4bit（2bit）シフトしていることに等しいため、（8（4）が1（単位）になる計算）
+            // 結果として、8（4）で割るということは、3bit（2bit）シフトしていることに等しいため、（8（4）が1（単位）になる計算）
             // 計算では高速化のためビットシフトで計算する
-            int shift = _divisionNumber / 2;
-            elem = (elem - 1) >> shift;
+            elem = (elem - 1) >> _parentShift;
 
             // ルート空間の場合は-1になるためそこで終了
             if (elem == -1)
