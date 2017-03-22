@@ -27,7 +27,9 @@ public class LinearTreeBehaviour : MonoBehaviour
         float top = 0f;
         float right = 100f;
         float bottom = 100f;
-        _manager = new LinearTreeManager<GameObject>(level, left, top, right, bottom);
+        float front = 0f;
+        float back = 100f;
+        _manager = new LinearTreeManager<GameObject>(level, left, top, right, bottom, front, back);
 
         // オブジェクトを仮登録してみる
         RegisterObjects();
@@ -48,9 +50,9 @@ public class LinearTreeBehaviour : MonoBehaviour
         TreeData<GameObject> data4 = new TreeData<GameObject>(_object4);
 
         // オブジェクトを登録のテスト
-        _manager.Register(10f, 15f, 40f, 45f, data1);
-        _manager.Register(45f, 30f, 55f, 40f, data2);
-        _manager.Register(76f, 26f, 86f, 36f, data3);
-        _manager.Register(55f, 55f, 70f, 70f, data4);
+        _manager.Register(10f, 15f, 40f, 45f, 0f, 30f, data1);
+        _manager.Register(45f, 30f, 55f, 40f, 0f, 10f, data2);
+        _manager.Register(76f, 26f, 86f, 36f, 0f, 10f, data3);
+        _manager.Register(55f, 55f, 70f, 70f, 0f, 15f, data4);
     }
 }
