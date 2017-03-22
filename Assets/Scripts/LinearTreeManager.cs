@@ -47,8 +47,6 @@ public class LinearTreeManager<T>
     /// <returns>初期化できたらtrue</returns>
     bool Initialize(int level, float left, float top, float right, float bottom)
     {
-        // TODO: このあたりの配列数確保は要確認
-
         // MaxLevelを超えて初期化しようとした場合はエラー
         if (level > _MaxLevel + 1)
         {
