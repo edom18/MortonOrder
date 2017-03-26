@@ -130,12 +130,16 @@ public class LinearTreeBehaviour : MonoBehaviour
         TreeData<GameObject> data3 = new TreeData<GameObject>(_object3);
         TreeData<GameObject> data4 = new TreeData<GameObject>(_object4);
 
-        RegisterObject(_object1);
+        //RegisterObject(_object1);
 
         // オブジェクトを登録のテスト
         //_manager.Register(10f, 15f, 40f, 45f, 0f, 30f, data1);
         //_manager.Register(45f, 30f, 55f, 40f, 0f, 10f, data2);
         //_manager.Register(76f, 26f, 86f, 36f, 13f, 23f, data3);
         //_manager.Register(55f, 55f, 70f, 70f, 0f, 15f, data4);
+        _manager.Register(-40f, 15f, -10f, 45f, 0f, 30f, data1);
+        _manager.Register(-5f, 30f, 5f, 40f, 0f, 10f, data2);
+        _manager.Register(26f, 26f, 36f, 36f, 13f, 23f, data3);
+        _manager.Register(5f, 55f, 20f, 70f, 0f, 15f, data4);
     }
 }
