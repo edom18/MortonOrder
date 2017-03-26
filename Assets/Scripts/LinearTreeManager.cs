@@ -23,9 +23,9 @@ public class LinearTreeManager<T>
 
     private int _level;
 
-    private float _left;
-    private float _top;
-    private float _front;
+    private float _offsetLeft;
+    private float _offsetBottom;
+    private float _offsetFront;
     private float _width;
     private float _height;
     private float _depth;
@@ -86,11 +86,11 @@ public class LinearTreeManager<T>
 
         // 有効領域を登録
         // 左上手前の座標と幅、高さ、深度を保持
-        _left = left;
-        _top = top;
-        _front = front;
+        _offsetLeft = left;
+        _offsetBottom = bottom;
+        _offsetFront = front;
         _width = right - left;
-        _height = bottom - top;
+        _height = top - bottom;
         _depth = back - front;
 
         // 分割数に応じた単位幅と単位高を求める
@@ -136,6 +136,14 @@ public class LinearTreeManager<T>
     /// <returns>登録に成功したらtrue</returns>
     public bool Register(float left, float top, float right, float bottom, float front, float back, TreeData<T> data)
     {
+        // 指定領域の分、オフセットして計算する
+        left -= _offsetLeft;
+        right -= _offsetLeft;
+        top -= _offsetBottom;
+        bottom -= _offsetBottom;
+        front -= _offsetFront;
+        back -= _offsetFront;
+
         // オブジェクトの境界範囲からモートン番号を算出
         int belongLevel;
         int elem = GetMortonNumber(left, top, right, bottom, front, back, out belongLevel);
