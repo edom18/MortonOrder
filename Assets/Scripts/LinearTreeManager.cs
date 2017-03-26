@@ -124,6 +124,23 @@ public class LinearTreeManager<T>
     }
 
     /// <summary>
+    /// Boundsを元にオブジェクトを登録
+    /// </summary>
+    /// <param name="bounds"></param>
+    /// <returns></returns>
+    public bool Register(Bounds bounds, TreeData<T> data)
+    {
+        float left = bounds.min.x;
+        float right = bounds.max.x;
+        float top = bounds.max.y;
+        float bottom = bounds.min.y;
+        float front = bounds.min.z;
+        float back = bounds.max.z;
+
+        return Register(left, right, top, bottom, front, back, data);
+    }
+
+    /// <summary>
     /// 指定範囲にオブジェクトを登録
     /// </summary>
     /// <param name="left">オブジェクトの左の点</param>
