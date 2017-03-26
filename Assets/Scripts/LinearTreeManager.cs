@@ -123,6 +123,50 @@ public class LinearTreeManager<T>
         return mortonNumber + additveNum;
     }
 
+    bool OffsetPosition(ref float left, ref float top, ref float right, ref float bottom, ref float front, ref float back)
+    {
+        // 指定領域の分、オフセットして計算する
+        left -= _offsetLeft;
+        right -= _offsetLeft;
+        top -= _offsetBottom;
+        bottom -= _offsetBottom;
+        front -= _offsetFront;
+        back -= _offsetFront;
+
+        if (left < 0)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+        if (right > _width)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+        if (bottom < 0)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+        if (top > _height)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+        if (front < 0)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+        if (back > _depth)
+        {
+            Debug.LogError("All argumetns must be in initialized range.");
+            return false;
+        }
+
+        return true;
+    }
+
     /// <summary>
     /// Boundsを元にオブジェクトを登録
     /// </summary>
@@ -154,12 +198,10 @@ public class LinearTreeManager<T>
     public bool Register(float left, float top, float right, float bottom, float front, float back, TreeData<T> data)
     {
         // 指定領域の分、オフセットして計算する
-        left -= _offsetLeft;
-        right -= _offsetLeft;
-        top -= _offsetBottom;
-        bottom -= _offsetBottom;
-        front -= _offsetFront;
-        back -= _offsetFront;
+        if (!OffsetPosition(ref left, ref top, ref right, ref bottom, ref front, ref back))
+        {
+            return false;
+        }
 
         // オブジェクトの境界範囲からモートン番号を算出
         int belongLevel;
