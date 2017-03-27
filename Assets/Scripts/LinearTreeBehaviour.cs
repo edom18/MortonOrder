@@ -109,10 +109,9 @@ public class LinearTreeBehaviour : MonoBehaviour
     void RegisterObject(GameObject target)
     {
         TreeData<GameObject> data = new TreeData<GameObject>(target);
-        MeshFilter filter = target.GetComponent<MeshFilter>();
-        Bounds bounds = filter.mesh.bounds;
+        Collider col = target.GetComponent<Collider>();
 
-        _manager.Register(bounds, data);
+        _manager.Register(col.bounds, data);
     }
 
     void UnregisterObject(GameObject target)
@@ -125,21 +124,28 @@ public class LinearTreeBehaviour : MonoBehaviour
     /// </summary>
     void RegisterObjects()
     {
-        TreeData<GameObject> data1 = new TreeData<GameObject>(_object1);
-        TreeData<GameObject> data2 = new TreeData<GameObject>(_object2);
-        TreeData<GameObject> data3 = new TreeData<GameObject>(_object3);
-        TreeData<GameObject> data4 = new TreeData<GameObject>(_object4);
+        RegisterObject(_object1);
+        RegisterObject(_object2);
+        RegisterObject(_object3);
+        RegisterObject(_object4);
 
-        //RegisterObject(_object1);
+        #region For Mock
+        //TreeData<GameObject> data1 = new TreeData<GameObject>(_object1);
+        //TreeData<GameObject> data2 = new TreeData<GameObject>(_object2);
+        //TreeData<GameObject> data3 = new TreeData<GameObject>(_object3);
+        //TreeData<GameObject> data4 = new TreeData<GameObject>(_object4);
 
-        // オブジェクトを登録のテスト
-        //_manager.Register(10f, 15f, 40f, 45f, 0f, 30f, data1);
-        //_manager.Register(45f, 30f, 55f, 40f, 0f, 10f, data2);
-        //_manager.Register(76f, 26f, 86f, 36f, 13f, 23f, data3);
-        //_manager.Register(55f, 55f, 70f, 70f, 0f, 15f, data4);
-        _manager.Register(-40f, 15f, -10f, 45f, 0f, 30f, data1);
-        _manager.Register(-5f, 30f, 5f, 40f, 0f, 10f, data2);
-        _manager.Register(26f, 26f, 36f, 36f, 13f, 23f, data3);
-        _manager.Register(5f, 55f, 20f, 70f, 0f, 15f, data4);
+        //// size: 3
+        //_manager.Register(-4f, 4.5f, -1f, 1.5f, -5f, -2f, data1);
+
+        //// size: 1
+        //_manager.Register(-0.5f, 4f, 0.5f, 3f, -5f, -4f, data2);
+
+        //// size: 1
+        //_manager.Register(2.6f, 3.6f, 3.6f, 2.6f, -3.7f, -2.7f, data3);
+
+        //// size: 1.5
+        //_manager.Register(0.5f, 7f, 2f, 5.5f, -5f, -3.5f, data4);
+        #endregion For Mock
     }
 }
