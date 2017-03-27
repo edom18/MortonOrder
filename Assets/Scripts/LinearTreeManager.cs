@@ -181,7 +181,7 @@ public class LinearTreeManager<T>
         float front = bounds.min.z;
         float back = bounds.max.z;
 
-        return Register(left, right, top, bottom, front, back, data);
+        return Register(left, top, right, bottom, front, back, data);
     }
 
     /// <summary>
