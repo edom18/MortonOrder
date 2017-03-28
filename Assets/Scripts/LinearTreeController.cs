@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LinearTreeBehaviour : MonoBehaviour
+public class LinearTreeController : MonoBehaviour
 {
     #region SerializeField
     [SerializeField]
@@ -108,10 +108,14 @@ public class LinearTreeBehaviour : MonoBehaviour
     /// <param name="target">ターゲットのゲームオブジェクト</param>
     void RegisterObject(GameObject target)
     {
-        TreeData<GameObject> data = new TreeData<GameObject>(target);
-        Collider col = target.GetComponent<Collider>();
+        MortonAgent agent = target.GetComponent<MortonAgent>();
+        if (agent == null)
+        {
+            Debug.LogWarningFormat("Augument must have a `MortonAgent` component. {0}", target);
+            return;
+        }
 
-        _manager.Register(col.bounds, data);
+        _manager.Register(agent.Bounds, agent.TreeData);
     }
 
     void UnregisterObject(GameObject target)
