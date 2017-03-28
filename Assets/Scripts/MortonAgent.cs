@@ -7,6 +7,29 @@ using UnityEngine;
 /// </summary>
 public class MortonAgent : MonoBehaviour
 {
+    private LinearTreeManager<GameObject> _manager;
+    public LinearTreeManager<GameObject> Manager
+    {
+        get
+        {
+            return _manager;
+        }
+        set
+        {
+            if (_manager == value)
+            {
+                return;
+            }
+
+            // Remove from current manager.
+            TreeData.Remove();
+
+            // Change to new manager and register myself.
+            _manager = value;
+            RegisterUpdate();
+        }
+    }
+
     public TreeData<GameObject> TreeData { get; private set; }
 
     private Collider _collider;
@@ -33,10 +56,20 @@ public class MortonAgent : MonoBehaviour
     {
         TreeData.Remove();
     }
+
+    void Update()
+    {
+        if (_manager == null)
+        {
+            return;
+        }
+
+        RegisterUpdate();
+    }
     #endregion MonoBehaviour
 
-    public void UpdateAgent()
+    void RegisterUpdate()
     {
-
+        _manager.Register(Bounds, TreeData);
     }
 }
