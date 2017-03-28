@@ -12,7 +12,30 @@ using UnityEngine;
 /// <typeparam name="T">管理対象のオブジェクトの型</typeparam>
 public class TreeData<T>
 {
-    public Cell<T> Cell { get; set; }
+    private Cell<T> _cell;
+    public Cell<T> Cell
+    {
+        get
+        {
+            return _cell;
+        }
+        set
+        {
+            if (value == _cell)
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                return;
+            }
+
+            // Remove from current cell.
+            Remove();
+            _cell = value;
+        }
+    }
     public T Object { get; private set; }
     public TreeData<T> Previous { get; set; }
     public TreeData<T> Next { get; set; }
