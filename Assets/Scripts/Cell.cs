@@ -44,6 +44,9 @@ public class Cell<T>
             return false;
         }
 
+        // 空間を登録
+        data.Cell = this;
+
         // まだ空間にひとつも登録がない場合は、
         // リンクリストの初めのデータとして登録する
         if (_latestData == null)
@@ -56,9 +59,6 @@ public class Cell<T>
         data.Next = _latestData;
         _latestData.Previous = data;
         _latestData = data;
-
-        // 空間を登録
-        data.Cell = this;
 
         return true;
     }
