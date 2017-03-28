@@ -95,11 +95,27 @@ public class LinearTreeController : MonoBehaviour
 
         // オブジェクトを仮登録してみる
         RegisterObjects();
-
-        // Check collisions
-        List<GameObject> collisionList = new List<GameObject>();
-       _manager.GetAllCollisionList(collisionList);
 	}
+
+    private List<GameObject> _collisionList = new List<GameObject>();
+    void Update()
+    {
+        // Check collisions
+        _manager.GetAllCollisionList(_collisionList);
+    }
+
+    void OnDrawGizmos()
+    {
+        // Connect by line with collision pairs.
+        Gizmos.color = Color.cyan;
+        for (int i = 0; i < _collisionList.Count; i += 2)
+        {
+            GameObject g0 = _collisionList[i + 0];
+            GameObject g1 = _collisionList[i + 1];
+
+            Gizmos.DrawLine(g0.transform.position, g1.transform.position);
+        }
+    }
     #endregion MonoBehaviour
 
     /// <summary>
@@ -116,8 +132,6 @@ public class LinearTreeController : MonoBehaviour
         }
 
         agent.Manager = _manager;
-
-        //_manager.Register(agent.Bounds, agent.TreeData);
     }
 
     void UnregisterObject(GameObject target)
