@@ -123,6 +123,10 @@ public class LinearTreeManager<T>
         return mortonNumber + additveNum;
     }
 
+    /// <summary>
+    /// Calculate offset for each auguments.
+    /// </summary>
+    /// <returns>Return false if any augment is over the range.</returns>
     bool OffsetPosition(ref float left, ref float top, ref float right, ref float bottom, ref float front, ref float back)
     {
         // 指定領域の分、オフセットして計算する
