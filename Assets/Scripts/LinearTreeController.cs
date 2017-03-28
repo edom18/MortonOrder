@@ -115,7 +115,9 @@ public class LinearTreeController : MonoBehaviour
             return;
         }
 
-        _manager.Register(agent.Bounds, agent.TreeData);
+        agent.Manager = _manager;
+
+        //_manager.Register(agent.Bounds, agent.TreeData);
     }
 
     void UnregisterObject(GameObject target)
