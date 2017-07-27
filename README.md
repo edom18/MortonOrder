@@ -9,3 +9,6 @@ You can see commentary article for morton order. (This article has been written 
 
 このサンプルプロジェクトはモートンオーダーを実装したものになります。
 Qiitaに解説記事を書いているので、興味がある方は参照ください。
+
+
+![](./morton-order.gif)
